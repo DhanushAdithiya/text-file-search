@@ -181,40 +181,18 @@ pub fn stop_word_removal(input: &String) -> String {
             .join(" ");
     }
 
-    clean
+    clean.to_ascii_lowercase()
 }
 
-//fn calculate_tf(
-//    corpus: &Vec<String>,
-//    n_words: usize,
-//    words: HashSet<String>,
-//) -> HashMap<String, f64> {
-//    let mut tf_values: HashMap<String, f64> = HashMap::new();
-//    for unique in words {
-//        let mut count = 0.0;
-//        for doc in corpus {
-//            for word in doc.split_whitespace() {
-//                if word == unique {
-//                    count += 1.0;
-//                }
-//            }
-//        }
-//
-//        let tf = count / n_words as f64;
-//        tf_values.insert(unique, tf);
-//    }
-//    tf_values
-//}
-
 fn calculate_tf(
-    data: HashMap<PathBuf, String>,
+    data: &HashMap<PathBuf, String>,
     n_words: usize,
     words: HashSet<String>,
-) -> HashMap<String, HashMap<String, f64>> {
-    let mut tf_values: HashMap<String, HashMap<String, f64>> = HashMap::new();
+) -> HashMap<PathBuf, HashMap<String, f64>> {
+    let mut tf_values: HashMap<PathBuf, HashMap<String, f64>> = HashMap::new();
 
-    for (url, text) in &data {
-        let mut temp_hash: HashMap<PathBuf, f64> = HashMap::new();
+    for (url, text) in data {
+        let mut temp_hash: HashMap<String, f64> = HashMap::new();
 
         for unique in &words {
             let word_count = text
@@ -255,58 +233,61 @@ pub fn query_if(query: String) -> HashMap<String, f64> {
 }
 
 fn calculate_idf(
-    corpus: &Vec<String>,
+    corpus: &HashMap<PathBuf, String>,
     n_docs: usize,
-    words: HashSet<String>,
+    unique_words: HashSet<String>,
 ) -> HashMap<String, f64> {
-    let mut idf_values: HashMap<String, f64> = HashMap::new();
-    for unique in words {
-        let mut count = 0.0;
-        for doc in corpus {
-            if doc.contains(&unique) {
-                count += 1.0;
+    let mut idf: HashMap<String, f64> = HashMap::new();
+
+    for unique in &unique_words {
+        let mut word_count = 0.0;
+        for (_, word) in corpus {
+            for w in word.split_whitespace() {
+                if unique == w {
+                    word_count += 1.0;
+                }
             }
         }
-        let idf = count / n_docs as f64;
-        idf_values.insert(unique, idf);
+
+        let idf_value = (n_docs as f64 / word_count).ln();
+        idf.insert(unique.clone(), idf_value);
     }
-    idf_values
+    // println!("IDF VALUES: \n{idf:#?}");
+    idf
 }
 
-pub fn tf_idf(data: HashMap<PathBuf, String>) -> HashMap<String, HashMap<String, f64>> {
-    // Recieve the url + the clean content and then process it and return the results
-    let mut unique_words: HashSet<String> = HashSet::new();
-    //let n_docs = corpus.len();
+//calculates tf_idf
 
-    for (_url, document) in data.clone() {
+pub fn tf_idf(data: &HashMap<PathBuf, String>) -> HashMap<PathBuf, HashMap<String, f64>> {
+    let mut unique_words: HashSet<String> = HashSet::new();
+    let mut tf_idf: HashMap<PathBuf, HashMap<String, f64>> = HashMap::new();
+
+    // Step 1: Calculate unique words across all documents
+    for document in data.values() {
         for word in document.split_whitespace() {
-            unique_words.insert(String::from(word));
+            unique_words.insert(word.to_string());
         }
     }
+
     let n_words = unique_words.len();
+    let n_docs = data.len();
 
+    // Step 2: Calculate TF and IDF values
     let tf_values = calculate_tf(data, n_words, unique_words.clone());
-    //let idf_values = calculate_idf(&corpus, n_docs, unique_words.clone());
-    //    let mut tf_idf_values: HashMap<String, f64> = HashMap::new();
-    //
-    //    for word in tf_values {
-    //        let value = idf_values.get(&word.0).unwrap();
-    //        tf_idf_values.insert(word.0, value * word.1);
-    //    }
+    let idf_values = calculate_idf(data, n_docs, unique_words.clone());
 
-    println!("{:#?}", tf_values);
-    tf_values
+    // Step 3: Calculate TF-IDF scores
+    for (path, words) in tf_values.into_iter() {
+        let mut temp_hash: HashMap<String, f64> = HashMap::new();
+        for (word, tf_value) in words.into_iter() {
+            if let Some(val) = idf_values.get(&word) {
+                let tf_idf_value = val * tf_value;
+                temp_hash.insert(word, tf_idf_value);
+            }
+        }
+        tf_idf.insert(path, temp_hash);
+    }
+
+    // println!("{:#?}", tf_idf);
+    tf_idf
 }
-
-//(hello,1.234)
-//{
-//doc1 ,{
-//  hello = 0.1,
-//  world = 0.9
-//},
-//doc2, {
-//  hi ' 0.01,
-//  seamen = 0.6'
-//}
-//}
-//

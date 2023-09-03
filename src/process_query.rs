@@ -1,10 +1,10 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 
 pub fn process_query(
     query: HashMap<String, f64>,
-    data: HashMap<String, HashMap<String, f64>>,
-) -> String {
-    let mut res: String = String::new();
+    data: HashMap<PathBuf, HashMap<String, f64>>,
+) -> PathBuf {
+    let mut res: PathBuf = PathBuf::new();
     let mut query_vec: Vec<f64> = Vec::new();
     let mut cosine_score = 0.0;
     for (_word, score) in &query {
@@ -23,7 +23,7 @@ pub fn process_query(
             let cos_sim = cosine_similarity(&query_vec, &document_vec);
             if cos_sim > cosine_score {
                 cosine_score = cos_sim;
-                res = String::from(url);
+                res = url.clone();
             }
         }
     }

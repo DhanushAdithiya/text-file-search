@@ -28,6 +28,6 @@ pub fn scan_folder(path: &str) -> Result<HashMap<PathBuf, String>, Box<dyn Error
         }
     }
 
-    println!("{data:?}");
+    // println!("{data:?}");
     Ok(data)
 }
