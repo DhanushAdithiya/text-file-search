@@ -1,7 +1,10 @@
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    path::PathBuf,
+};
 
-pub fn stop_word_removal(input: String) -> String {
-    let stop_words: [&str; 127] = [
+pub fn stop_word_removal(input: &String) -> String {
+    let stop_words: [&str; 165] = [
         "i",
         "me",
         "my",
@@ -129,6 +132,44 @@ pub fn stop_word_removal(input: String) -> String {
         "don",
         "should",
         "now",
+        "#",
+        "##",
+        "###",
+        "####",
+        "#####",
+        "######",
+        ".",
+        ",",
+        "?",
+        "!",
+        ":",
+        ";",
+        "-",
+        "'",
+        "\"",
+        "(",
+        ")",
+        "[",
+        "]",
+        "{",
+        "}",
+        "<",
+        ">",
+        "/",
+        "\\",
+        "|",
+        "_",
+        "&",
+        "#",
+        "*",
+        "@",
+        "%",
+        "~",
+        "=",
+        "+",
+        "`",
+        "^",
+        "$",
     ];
     let mut clean = input.clone();
 
@@ -166,14 +207,14 @@ pub fn stop_word_removal(input: String) -> String {
 //}
 
 fn calculate_tf(
-    data: HashMap<String, String>,
+    data: HashMap<PathBuf, String>,
     n_words: usize,
     words: HashSet<String>,
 ) -> HashMap<String, HashMap<String, f64>> {
     let mut tf_values: HashMap<String, HashMap<String, f64>> = HashMap::new();
 
     for (url, text) in &data {
-        let mut temp_hash: HashMap<String, f64> = HashMap::new();
+        let mut temp_hash: HashMap<PathBuf, f64> = HashMap::new();
 
         for unique in &words {
             let word_count = text
@@ -194,7 +235,7 @@ pub fn query_if(query: String) -> HashMap<String, f64> {
     let length = query.split_whitespace().count();
     let mut unique: HashSet<String> = HashSet::new();
     let mut tf: HashMap<String, f64> = HashMap::new();
-    let clean = stop_word_removal(query.clone());
+    let clean = stop_word_removal(&query.clone());
     for word in clean.split_whitespace() {
         unique.insert(word.to_string());
     }
@@ -232,7 +273,7 @@ fn calculate_idf(
     idf_values
 }
 
-pub fn tf_idf(data: HashMap<String, String>) -> HashMap<String, HashMap<String, f64>> {
+pub fn tf_idf(data: HashMap<PathBuf, String>) -> HashMap<String, HashMap<String, f64>> {
     // Recieve the url + the clean content and then process it and return the results
     let mut unique_words: HashSet<String> = HashSet::new();
     //let n_docs = corpus.len();
