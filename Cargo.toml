@@ -7,3 +7,5 @@ edition = "2021"
 
 [dependencies]
 markdown-parser = "0.1.2"
+serde = "1.0.188"
+serde_json = "1.0.105"

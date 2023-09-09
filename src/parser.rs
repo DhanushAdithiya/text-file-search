@@ -16,6 +16,13 @@ pub fn scan_folder(path: &str) -> Result<HashMap<PathBuf, String>, Box<dyn Error
     for entry in fs::read_dir(folder)? {
         let file_path = entry?.path();
 
+        if file_path.is_dir() {
+            let nested_data = scan_folder(&file_path.to_str().unwrap());
+            for (nested_path, content) in nested_data? {
+                data.insert(nested_path, content);
+            }
+        }
+
         if file_path.is_file() {
             match file_path.extension() {
                 Some(ext) if ext == "txt" || ext == "md" => {
@@ -27,7 +34,5 @@ pub fn scan_folder(path: &str) -> Result<HashMap<PathBuf, String>, Box<dyn Error
             }
         }
     }
-
-    // println!("{data:?}");
     Ok(data)
 }

@@ -4,7 +4,7 @@ use std::{
 };
 
 pub fn stop_word_removal(input: &String) -> String {
-    let stop_words: [&str; 165] = [
+    let stop_words = [
         "i",
         "me",
         "my",
@@ -132,44 +132,12 @@ pub fn stop_word_removal(input: &String) -> String {
         "don",
         "should",
         "now",
-        "#",
-        "##",
-        "###",
-        "####",
-        "#####",
-        "######",
-        ".",
-        ",",
-        "?",
-        "!",
-        ":",
-        ";",
-        "-",
-        "'",
-        "\"",
-        "(",
-        ")",
-        "[",
-        "]",
-        "{",
-        "}",
-        "<",
-        ">",
-        "/",
-        "\\",
-        "|",
-        "_",
-        "&",
-        "#",
-        "*",
-        "@",
-        "%",
-        "~",
-        "=",
-        "+",
-        "`",
-        "^",
-        "$",
+    ];
+
+    let punctuations = [
+        "#", "##", "###", "####", "#####", "######", ".", ",", "?", "!", ":", ";", "-", "'", "\"",
+        "(", ")", "[", "]", "{", "}", "<", ">", "/", "\\", "|", "_", "&", "#", "*", "@", "%", "~",
+        "=", "+", "`", "^", "$",
     ];
     let mut clean = input.clone();
 
@@ -179,6 +147,10 @@ pub fn stop_word_removal(input: &String) -> String {
             .filter(|word| word != stop_word)
             .collect::<Vec<&str>>()
             .join(" ");
+    }
+
+    for pnc in punctuations.iter() {
+        clean = clean.replace(pnc, "");
     }
 
     clean.to_ascii_lowercase()
