@@ -17,7 +17,7 @@ fn main() {
     match command.as_str() {
         "index" => commands::index_folder(argument),
         "query" => {
-            let file = File::open("data.json").unwrap();
+            let file = File::open("data.json").expect("You need to index a folder first!");
             let reader = BufReader::new(file);
             let map = serde_json::from_reader(reader).unwrap();
             let pros_query = text_processing::query_if(String::from(argument));

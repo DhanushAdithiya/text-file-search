@@ -25,7 +25,7 @@ pub fn scan_folder(path: &str) -> Result<HashMap<PathBuf, String>, Box<dyn Error
 
         if file_path.is_file() {
             match file_path.extension() {
-                Some(ext) if ext == "txt" || ext == "md" => {
+                Some(ext) if ext == "txt" || ext == "md" || ext == "docx" => {
                     let file_contents = fs::read_to_string(&file_path)?;
                     let content_parsed = text_processing::stop_word_removal(&file_contents);
                     data.insert(file_path, content_parsed);

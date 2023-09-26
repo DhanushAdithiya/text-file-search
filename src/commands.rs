@@ -13,5 +13,3 @@ pub fn index_folder(path: &str) {
     let mut file = File::create("data.json").unwrap();
     file.write_all(serialized.as_bytes()).unwrap()
 }
-
-pub fn search_query() {}

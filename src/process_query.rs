@@ -3,13 +3,16 @@ use std::{collections::HashMap, path::PathBuf};
 pub fn process_query(
     query: HashMap<String, f64>,
     data: HashMap<PathBuf, HashMap<String, f64>>,
-) -> PathBuf {
-    let mut res: PathBuf = PathBuf::new();
+) -> Vec<PathBuf> {
     let mut query_vec: Vec<f64> = Vec::new();
     let mut cosine_score = 0.0;
-    for (_word, score) in &query {
+    let mut search_rankings: Vec<PathBuf> = Vec::new();
+
+    for (_, score) in &query {
         query_vec.push(*score);
     }
+
+    // println!("QUERY {:?}", query_vec);
 
     for (url, doc_data) in &data {
         let mut document_vec: Vec<f64> = Vec::new();
@@ -19,16 +22,17 @@ pub fn process_query(
             }
         }
 
+        // println!("DOC {:?}", document_vec);
         if !document_vec.is_empty() {
             let cos_sim = cosine_similarity(&query_vec, &document_vec);
             if cos_sim > cosine_score {
                 cosine_score = cos_sim;
-                res = url.clone();
+                search_rankings.push(url.clone())
             }
         }
     }
 
-    res
+    search_rankings
 }
 
 fn dot_prod(v1: &Vec<f64>, v2: &Vec<f64>) -> f64 {
