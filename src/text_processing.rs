@@ -217,6 +217,7 @@ fn calculate_idf(
             for w in word.split_whitespace() {
                 if unique == w {
                     word_count += 1.0;
+                    break;
                 }
             }
         }
